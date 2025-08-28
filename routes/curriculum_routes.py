@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-
+from security import get_api_key 
 from schemas.curriculum_schema import CurriculumInfo
 from database import get_db
 from services import curriculum_services
@@ -10,7 +10,7 @@ from services import curriculum_services
 router = APIRouter(prefix="/api/curriculums", tags=["Curriculum"])
 
 @router.get("/", response_model=List[CurriculumInfo])
-async def read_curriculum(db: Session = Depends(get_db)):
+async def read_curriculum(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna o currículo de um curso específico.
     """

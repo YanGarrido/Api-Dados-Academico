@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-
+from security import get_api_key 
 from schemas.students_schema import StudentInfo
 from database import get_db
 from services import students_services
@@ -12,7 +12,7 @@ router = APIRouter(
     tags=["Students"])
 
 @router.get("/active", response_model=List[StudentInfo], status_code=status.HTTP_200_OK)
-async def read_active_students(db: Session = Depends(get_db)):
+async def read_active_students(db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os alunos ativos.
     """
@@ -34,7 +34,7 @@ async def read_active_students(db: Session = Depends(get_db)):
                             detail="Erro interno ao buscar alunos ativos.")
 
 @router.get("/inactive", response_model=List[StudentInfo], status_code=status.HTTP_200_OK)
-async def read_inactive_students(db: Session = Depends(get_db)):
+async def read_inactive_students(db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os alunos inativos.
     """
@@ -56,7 +56,7 @@ async def read_inactive_students(db: Session = Depends(get_db)):
                             detail="Erro interno ao buscar alunos inativos.")
 
 @router.get("/former", response_model=List[StudentInfo], status_code=status.HTTP_200_OK)
-async def read_former_students(db: Session = Depends(get_db)):
+async def read_former_students(db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os alunos ex-alunos.
     """
@@ -76,7 +76,7 @@ async def read_former_students(db: Session = Depends(get_db)):
                             detail="Erro interno ao buscar ex-alunos.")
 
 @router.get("/active/{ra}", response_model=StudentInfo, status_code=status.HTTP_200_OK)
-async def read_active_student_by_ra(ra: str, db: Session = Depends(get_db)):
+async def read_active_student_by_ra(ra: str, db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
     Retorna informações de um aluno ativo pelo RA.
     """

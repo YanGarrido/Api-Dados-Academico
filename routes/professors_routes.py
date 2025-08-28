@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-
+from security import get_api_key 
 from schemas.professors_schema import ProfessorInfo
 from database import get_db
 from services import professors_services
@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 @router.get("/active", response_model=List[ProfessorInfo], status_code=status.HTTP_200_OK)
-async def read_active_professors(db: Session = Depends(get_db)):
+async def read_active_professors(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os professores ativos.
     """
@@ -36,7 +36,7 @@ async def read_active_professors(db: Session = Depends(get_db)):
                             detail="Erro interno ao buscar professores ativos.")
 
 @router.get("/inactive", response_model=List[ProfessorInfo], status_code=status.HTTP_200_OK)
-async def read_inactive_professors(db: Session = Depends(get_db)):
+async def read_inactive_professors(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os professores inativos.
     """
