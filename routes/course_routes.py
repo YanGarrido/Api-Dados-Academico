@@ -2,17 +2,16 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-
+from security import get_api_key 
 from schemas.course_schema import CourseInfo
 from schemas.subject_schema import SubjectInfo
-
 from database import get_db
 from services import course_services
 
 router = APIRouter(prefix="/api/courses", tags=["Courses"])
 
 @router.get("/", response_model=List[CourseInfo])
-async def read_courses(db: Session = Depends(get_db)):
+async def read_courses(db: Session = Depends(get_db),api_key: str = Depends(get_api_key) ):
     """
     Retorna uma lista de todos os cursos.
     """
@@ -34,7 +33,7 @@ async def read_courses(db: Session = Depends(get_db)):
                             detail="Erro interno ao buscar cursos.")
 
 @router.get("/subjects", response_model=List[SubjectInfo])
-async def read_subjects(db: Session = Depends(get_db)):
+async def read_subjects(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todas as disciplinas.
     """
