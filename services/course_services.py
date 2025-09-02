@@ -6,7 +6,7 @@ from schemas.subject_schema import SubjectInfo
 async def get_all_courses(db: Session):
   try:
     sql_query = text("""
-    SELECT DISTINCT SCURSO.CODCURSO AS id, SCURSO.NOME AS name, STURNO.CODTURNO AS turno_id
+    SELECT DISTINCT SCURSO.CODCURSO AS id, SCURSO.NOME AS name, SCURSO.COMPLEMENTO AS complemento, STURNO.CODTURNO AS turno_id
     FROM CEMGJB_128187_RM_DV.dbo.SCURSO 
     JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL 
     ON SCURSO.CODCURSO = SHABILITACAOFILIAL.CODCURSO 
