@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Security, HTTPException, status
 from database import engine, Base
-from routes import professors_routes, students_routes, course_routes, schedule_routes, curriculum_routes
+from routes import professors_routes, students_routes, course_routes, schedule_routes, curriculum_routes, subjects_routes
 
 Base.metadata.create_all(bind=engine)
 
@@ -15,6 +15,7 @@ app.include_router(students_routes.router)
 app.include_router(course_routes.router)
 app.include_router(schedule_routes.router)
 app.include_router(curriculum_routes.router)
+app.include_router(subjects_routes.router)
 
 @app.get("/", tags=["Root"])
 def read_root():
