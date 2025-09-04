@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from security import get_api_key 
 from schemas.course_schema import CourseInfo
-from schemas.subject_schema import SubjectInfo
+from schemas.subject_schema import SubjectCompleteInfo, SubjectInfo
 from database import get_db
 from services import course_services
 
@@ -53,3 +53,12 @@ async def read_subjects(db: Session = Depends(get_db), api_key: str = Depends(ge
         print(f"Erro ao buscar disciplinas: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar disciplinas.")
+
+@router.get("/subjects/{id}", response_model=SubjectCompleteInfo)
+async def get_disciplina_por_identificador(id: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+    # CORREÇÃO: Adicionado "await" e passado o argumento "db"
+    disciplina = await course_services.get_complete_subjects(id=id, db=db)
+    
+    if not disciplina:
+        raise HTTPException(status_code=404, detail="Disciplina não encontrada")
+    return disciplina

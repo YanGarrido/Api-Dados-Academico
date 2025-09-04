@@ -11,7 +11,9 @@ async def get_active_professors(db: Session):
           SELECT DISTINCT
             GUS.CODUSUARIO AS code,
             PESSOA.NOME AS name, 
-            PESSOA.EMAIL AS email
+            PESSOA.EMAILPESSOAL AS emailpessoal,
+            PESSOA.EMAIL AS email,
+            PESSOA.CPF AS cpf
             
           FROM
             CEMGJB_128187_RM_DV.dbo.SPROFESSORTURMA AS PT
