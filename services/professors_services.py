@@ -77,3 +77,63 @@ async def get_professors_inactive(db: Session):
     except Exception as e:
         print(f"Erro ao buscar professores inativos: {e}")
         raise e
+
+async def get_professors_with_subjects(codigo_professor: str, db: Session):
+    """
+    Busca os detalhes de um professor e aninha uma lista com os nomes de suas disciplinas.
+    """
+    try:
+        # --- Consulta 1: Buscar os dados do professor ---
+        query_professor = text("""
+            SELECT
+                GUS.CODUSUARIO AS code,
+                PESSOA.NOME AS name,
+                PESSOA.CPF AS cpf,
+                PESSOA.EMAILPESSOAL AS emailpessoal,
+                PESSOA.EMAIL AS email
+            FROM
+                CEMGJB_128187_RM_DV.dbo.GUSUARIO AS GUS
+                JOIN CEMGJB_128187_RM_DV.dbo.PPESSOA AS PESSOA ON GUS.CODUSUARIO = PESSOA.CODUSUARIO
+            WHERE
+                GUS.CODUSUARIO = :codigo_prof
+        """)
+        
+        professor_data = db.execute(query_professor, {"codigo_prof": codigo_professor}).mappings().first()
+
+        # Se o professor não for encontrado, retorna None imediatamente
+        if not professor_data:
+            return None
+
+        # --- Consulta 2: Buscar os nomes das disciplinas do professor ---
+        query_disciplinas = text("""
+            SELECT
+                DISC.NOME
+            FROM
+                CEMGJB_128187_RM_DV.dbo.SPROFESSOR AS PROF
+                JOIN CEMGJB_128187_RM_DV.dbo.SPROFESSORTURMA AS PT ON PROF.CODPROF = PT.CODPROF
+                JOIN CEMGJB_128187_RM_DV.dbo.STURMADISC AS TD ON PT.IDTURMADISC = TD.IDTURMADISC
+                JOIN CEMGJB_128187_RM_DV.dbo.SDISCIPLINA AS DISC ON TD.CODDISC = DISC.CODDISC
+                JOIN CEMGJB_128187_RM_DV.dbo.PPESSOA AS PESSOA ON PROF.CODPESSOA = PESSOA.CODIGO
+                JOIN CEMGJB_128187_RM_DV.dbo.GUSUARIO AS GUS ON PESSOA.CODUSUARIO = GUS.CODUSUARIO
+            WHERE
+                GUS.CODUSUARIO = :codigo_prof
+            ORDER BY
+                DISC.NOME
+        """)
+        
+        disciplinas_result = db.execute(query_disciplinas, {"codigo_prof": codigo_professor}).mappings().all()
+        
+        # Extrai apenas os nomes das disciplinas para uma lista de strings
+        lista_de_nomes_disciplinas = [item['NOME'] for item in disciplinas_result]
+        
+        # --- 3. Combina os resultados ---
+        # Converte o resultado do professor para um dicionário padrão
+        response_data = dict(professor_data)
+        # Adiciona a lista de disciplinas
+        response_data['subjects'] = lista_de_nomes_disciplinas
+        
+        return response_data
+
+    except Exception as e:
+        print(f"Erro ao buscar professor com disciplinas: {e}")
+        raise e

@@ -2,8 +2,9 @@ import asyncio
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from schemas.subject_schema import SubjectInfo
 from security import get_api_key 
-from schemas.professors_schema import ProfessorInfo
+from schemas.professors_schema import ProfessorInfo, ProfessorWithSubjects
 from database import get_db
 from services import professors_services
 
@@ -58,3 +59,19 @@ async def read_inactive_professors(db: Session = Depends(get_db), api_key: str =
         print(f"Erro ao buscar professores inativos: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar professores inativos.")
+    
+@router.get("/{professor_code}", 
+    response_model=ProfessorWithSubjects, status_code=status.HTTP_200_OK, summary="Busca um professor e suas disciplinas"
+)
+async def get_professor_with_subjects(professor_code: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+    """
+    Retorna os detalhes de um professor específico, incluindo uma lista
+    com os nomes de todas as disciplinas que ele leciona.
+    """
+    # A sua lógica de serviço que busca os dados está correta
+    professor_details = await professors_services.get_professors_with_subjects(codigo_professor=professor_code, db=db)
+    
+    if not professor_details:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Professor com código '{professor_code}' não encontrado.")
+        
+    return professor_details

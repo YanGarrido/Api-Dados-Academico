@@ -8,3 +8,9 @@ class ProfessorInfo(BaseModel):
     email: str | None = None
     
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProfessorWithSubjects(ProfessorInfo):
+    subjects: list[str] = []
+    
+    model_config = ConfigDict(from_attributes=True)
