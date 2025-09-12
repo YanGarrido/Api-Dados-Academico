@@ -17,8 +17,8 @@ DB_DRIVER = os.getenv("DB_DRIVER", "ODBC Driver 18 for SQL Server")
 encoded_password = quote_plus(DB_PASSWORD)
 
 SQLALCHEMY_DATABASE_URL = (
-    f"mssql+pyodbc://{DB_USERNAME}:{encoded_password}@{DB_HOST},{DB_PORT}/{DB_DATABASE}?"
-    f"driver={DB_DRIVER}&TrustServerCertificate=yes")
+    f"mssql+pyodbc://{DB_USERNAME}:{encoded_password}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}?"
+    f"driver={DB_DRIVER}&Encrypt=no&TrustServerCertificate=yes")
 
 engine =create_engine(SQLALCHEMY_DATABASE_URL)
 
