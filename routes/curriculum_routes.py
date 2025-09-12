@@ -39,7 +39,7 @@ async def read_curriculum_course(curso: str, db: Session = Depends(get_db), api_
     """
     try:
         curriculum = await asyncio.wait_for(
-            curriculum_services.get_curriculum_current(curso,db), 
+            curriculum_services.get_curriculum_current_course(curso,db), 
             timeout=60.0
         )
         if not curriculum:
