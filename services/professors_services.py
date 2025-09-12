@@ -106,7 +106,8 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
 
         # --- Consulta 2: Buscar os nomes das disciplinas do professor ---
         query_disciplinas = text("""
-            SELECT
+            SELECT DISTINCT
+                DISC.CODDISC,                 
                 DISC.NOME
             FROM
                 CEMGJB_128187_RM_DV.dbo.SPROFESSOR AS PROF
@@ -124,7 +125,10 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
         disciplinas_result = db.execute(query_disciplinas, {"codigo_prof": codigo_professor}).mappings().all()
         
         # Extrai apenas os nomes das disciplinas para uma lista de strings
-        lista_de_nomes_disciplinas = [item['NOME'] for item in disciplinas_result]
+        lista_de_nomes_disciplinas = [
+            {"coddisc": item["CODDISC"], "nome": item["NOME"]}
+            for item in disciplinas_result
+             ]
         
         # --- 3. Combina os resultados ---
         # Converte o resultado do professor para um dicionário padrão

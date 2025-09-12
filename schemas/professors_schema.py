@@ -11,6 +11,6 @@ class ProfessorInfo(BaseModel):
 
 
 class ProfessorWithSubjects(ProfessorInfo):
-    subjects: list[str] = []
+    subjects: list[dict[str, str]] = []
     
     model_config = ConfigDict(from_attributes=True)
