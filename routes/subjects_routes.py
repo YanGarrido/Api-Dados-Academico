@@ -31,10 +31,19 @@ async def read_subjects(db: Session = Depends(get_db), api_key: str = Depends(ge
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar disciplinas.")
     
+
 @router.get("/{id}", response_model=SubjectCompleteInfo)
-async def get_disciplina_por_identificador(id: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
-    disciplina = await subjects_services.get_complete_subjects(id=id, db=db)
+async def get_subject_by_id(id: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+    subject = await subjects_services.get_complete_subjects(id=id, db=db)
     
-    if not disciplina:
+    if not subject:
         raise HTTPException(status_code=404, detail="Disciplina não encontrada")
-    return disciplina
+    return subject
+
+@router.get("/current/{codcurso}/{periodo_id}", response_model=List[SubjectInfo])
+async def get_subjects_current_semester(codcurso: str, periodo_id: int, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+     subject = await subjects_services.get_subjects_current_semester(codcurso=codcurso, periodo_id=periodo_id, db=db)
+
+     if not subject:
+        raise HTTPException(status_code=404, detail="Disciplina não encontrada")
+     return subject
