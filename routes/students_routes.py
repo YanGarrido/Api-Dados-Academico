@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from security import get_api_key 
-from schemas.students_schema import StudentInfo
+from schemas.students_schema import StudentInfo, StudentWithCourses
 from database import get_db
 from services import students_services
 
@@ -87,6 +87,28 @@ async def read_active_student_by_ra(ra: str, db: Session = Depends(get_db), get_
         
         student = await asyncio.wait_for(
             students_services.get_active_student_by_ra(ra, db), 
+            timeout=60.0
+        )
+        if not student:
+            raise HTTPException(status_code=404, detail="Aluno não encontrado ou não está ativo.")
+        return student
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, 
+                            detail="Tempo limite excedido ao buscar aluno ativo pelo RA.")
+    except Exception as e:
+        print(f"Erro ao buscar aluno ativo pelo RA: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                            detail="Erro interno ao buscar aluno ativo pelo RA.")  
+    
+@router.get("/active/courses/{ra}", response_model=StudentWithCourses, status_code=status.HTTP_200_OK)
+async def read_active_student_with_course(ra: str, db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
+    try:
+        if not ra:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+                                detail="RA não pode ser vazio.")
+        
+        student = await asyncio.wait_for(
+            students_services.get_active_student_with_course(ra, db), 
             timeout=60.0
         )
         if not student:

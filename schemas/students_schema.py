@@ -1,4 +1,5 @@
-from pydantic import BaseModel, ConfigDict
+from typing import List
+from pydantic import BaseModel, ConfigDict, Field
 
 class StudentInfo(BaseModel):
     ra: str | None = None
@@ -9,3 +10,11 @@ class StudentInfo(BaseModel):
     cpf: str | None = None
 
     model_config = ConfigDict(from_attributes=True)                                            
+
+class CourseInfo(BaseModel):
+    codcurso: int
+    name: str | None = None
+    turno_id: int
+
+class StudentWithCourses(StudentInfo):
+   courses: List[CourseInfo] = []

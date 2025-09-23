@@ -30,9 +30,7 @@ async def get_course_with_subjects(course_id: int, db: Session):
     O padrão deste código imita o da função get_professors_with_subjects.
     """
     try:
-        # --- Consulta 1: Buscar os dados do curso ---
-        # Nota: A coluna CODCURSO é INT, então o parâmetro course_id deve ser int.
-        query_curso = text("""
+        query_course = text("""
             SELECT TOP 1
                 SCURSO.CODCURSO AS codcurso, 
                 SCURSO.NOME AS name, 
@@ -46,14 +44,13 @@ async def get_course_with_subjects(course_id: int, db: Session):
                 SCURSO.CODCURSO = :course_id
         """)
         
-        course_data = db.execute(query_curso, {"course_id": course_id}).mappings().first()
+        course_data = db.execute(query_course, {"course_id": course_id}).mappings().first()
 
-        # Se o curso não for encontrado, retorna None imediatamente
         if not course_data:
             return None
 
         # --- Consulta 2: Buscar as disciplinas do curso ---
-        query_disciplinas = text("""
+        query_subjects = text("""
             SELECT DISTINCT
                 D.CODDISC AS coddisc,
                 D.NOME    AS name
@@ -66,24 +63,22 @@ async def get_course_with_subjects(course_id: int, db: Session):
             ORDER BY D.NOME
         """)
         
-        disciplinas_result = db.execute(query_disciplinas, {"course_id": course_id}).mappings().all()
+        subjects_result = db.execute(query_subjects, {"course_id": course_id}).mappings().all()
         
-        # O método .mappings().all() já retorna uma lista de dicionários no formato correto.
-        # Apenas para manter o padrão idêntico ao seu outro service, criamos uma nova lista.
+    
         subjects_list = [
             {"coddisc": item["coddisc"], "name": item["name"]}
-            for item in disciplinas_result
+            for item in subjects_result
         ]
         
-        # --- 3. Combina os resultados ---
-        # Converte o resultado do curso para um dicionário padrão
+       
         response_data = dict(course_data)
-        # Adiciona a lista de disciplinas
+        
         response_data['subjects'] = subjects_list
         
         return response_data
 
     except Exception as e:
         print(f"Erro ao buscar curso com disciplinas: {e}")
-        # Re-lança a exceção para que a camada superior (a rota) possa tratá-la
+       
         raise e
