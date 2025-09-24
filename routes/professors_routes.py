@@ -72,6 +72,19 @@ async def get_professor_with_subjects(professor_code: str, db: Session = Depends
     professor_details = await professors_services.get_professors_with_subjects(codigo_professor=professor_code, db=db)
     
     if not professor_details:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Professor com código '{professor_code}' não encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=(f"Professor com código '{professor_code}' não encontrado."))
         
+    return professor_details
+
+@router.get("/active/{codcurso}/{periodo_id}", response_model=List[ProfessorInfo], status_code=status.HTTP_200_OK)
+async def get_professor_still_active(codcurso: str, periodo_id: int, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+    """
+    Retorna os detalhes de um professor específico que lecionava em semestres anteriores e que continua ativo
+    """
+
+    professor_details = await professors_services.get_professor_still_active(codcurso=codcurso, periodo_id=periodo_id, db=db)
+
+    if not professor_details:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=(f"Professores não encontrados"))
+    
     return professor_details

@@ -141,3 +141,56 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
     except Exception as e:
         print(f"Erro ao buscar professor com disciplinas: {e}")
         raise e
+    
+async def get_professor_still_active(codcurso: str, periodo_id: int, db:Session):
+    try:
+        sql_query=text("""
+        WITH prof_prev AS (
+          SELECT DISTINCT PROF.CODPESSOA
+          FROM CEMGJB_128187_RM_DV.dbo.SPROFESSORTURMA PT
+          JOIN CEMGJB_128187_RM_DV.dbo.STURMADISC     TD
+            ON TD.CODCOLIGADA = PT.CODCOLIGADA
+            AND TD.IDTURMADISC = PT.IDTURMADISC
+          JOIN CEMGJB_128187_RM_DV.dbo.SPROFESSOR     PROF
+            ON PROF.CODCOLIGADA = PT.CODCOLIGADA
+            AND PROF.CODPROF     = PT.CODPROF
+          JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL HF
+            ON HF.IDHABILITACAOFILIAL = TD.IDHABILITACAOFILIAL
+          WHERE HF.CODCURSO   = :codcurso
+            AND TD.IDPERLET   < :periodo_id
+          ),
+        prof_curr AS (
+          SELECT DISTINCT PROF.CODPESSOA
+          FROM CEMGJB_128187_RM_DV.dbo.SPROFESSORTURMA PT
+          JOIN CEMGJB_128187_RM_DV.dbo.STURMADISC     TD
+            ON TD.CODCOLIGADA = PT.CODCOLIGADA
+            AND TD.IDTURMADISC = PT.IDTURMADISC
+          JOIN CEMGJB_128187_RM_DV.dbo.SPROFESSOR     PROF
+            ON PROF.CODCOLIGADA = PT.CODCOLIGADA
+            AND PROF.CODPROF     = PT.CODPROF
+          JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL HF
+            ON HF.IDHABILITACAOFILIAL = TD.IDHABILITACAOFILIAL
+          WHERE HF.CODCURSO   = :codcurso
+            AND TD.IDPERLET   = :periodo_id
+          )
+        SELECT DISTINCT
+          GUS.CODUSUARIO AS code,
+          PESSOA.NOME AS name,
+          PESSOA.EMAILPESSOAL AS emailpessoal,
+          PESSOA.EMAIL AS email,
+          PESSOA.CPF AS cpf
+        FROM prof_prev pp
+        JOIN prof_curr pc
+          ON pc.CODPESSOA = pp.CODPESSOA                
+        JOIN CEMGJB_128187_RM_DV.dbo.PPESSOA PESSOA
+          ON PESSOA.CODIGO = pp.CODPESSOA
+        LEFT JOIN CEMGJB_128187_RM_DV.dbo.GUSUARIO GUS
+          ON PESSOA.CODUSUARIO = GUS.CODUSUARIO
+        ORDER BY PESSOA.NOME;
+        """)
+        results = db.execute(sql_query, {"codcurso":codcurso,"periodo_id":periodo_id}).mappings().all()
+        return results
+    
+    except Exception as e:
+        print(f"Erro ao buscar professores ainda ativos: {e}")
+        raise e
