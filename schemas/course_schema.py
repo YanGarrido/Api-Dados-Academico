@@ -16,3 +16,7 @@ class BaseSubject(BaseModel):
 
 class CourseWithSubjects(CourseInfo):
    subjects: List[BaseSubject] = []
+
+class HasTurmaOut(BaseModel):
+    tem_turma: bool
+    quant_alunos: int

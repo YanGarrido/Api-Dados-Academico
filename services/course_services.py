@@ -82,3 +82,31 @@ async def get_course_with_subjects(course_id: int, db: Session):
         print(f"Erro ao buscar curso com disciplinas: {e}")
        
         raise e
+    
+async def has_class_first_period(codcurso: str,periodoletivo_id: int, periodo_id: int, codturno: int, db: Session):
+   try:
+      sql_query=text("""
+        WITH alvo AS (
+            SELECT DISTINCT M.RA
+        FROM CEMGJB_128187_RM_DV.dbo.SMATRICPL AS M
+        JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL AS HF
+          ON HF.IDHABILITACAOFILIAL = M.IDHABILITACAOFILIAL 
+        WHERE HF.CODCURSO = :codcurso
+          AND M.IDPERLET = :periodoletivo_id
+          AND M.PERIODO = :periodo_id  
+          AND HF.CODTURNO = :codturno  
+          AND M.CODSTATUS IN (1,9,16,23)
+        )
+        SELECT
+        CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) AS tem_turma,
+        COUNT(*) AS quant_alunos
+        FROM alvo; """)
+      result = db.execute(sql_query, {"codcurso": codcurso, "periodoletivo_id": periodoletivo_id, "periodo_id": periodo_id,"codturno":codturno}).mappings().first() or {"tem_turma": False, "quant_alunos": 0}
+      
+      return {"tem_turma": bool(result["tem_turma"]), "quant_alunos": int(result["quant_alunos"])}
+   except Exception as e:
+       print(f"Erro ao buscar se possuir turma: {e}")
+
+       raise e
+      
+      # turmas nesses semestre ativas
