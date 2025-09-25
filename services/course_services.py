@@ -83,7 +83,7 @@ async def get_course_with_subjects(course_id: int, db: Session):
        
         raise e
     
-async def has_class_first_period(codcurso: str,periodoletivo_id: int, periodo_id: int, codturno: int, db: Session):
+async def has_class_period(codcurso: str,periodoletivo_id: int, periodo_id: int, codturno: int, db: Session):
    try:
       sql_query=text("""
         WITH alvo AS (
@@ -109,4 +109,4 @@ async def has_class_first_period(codcurso: str,periodoletivo_id: int, periodo_id
 
        raise e
       
-      # turmas nesses semestre ativas
+      # todas as turmas nesses semestre ativas
