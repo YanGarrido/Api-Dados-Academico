@@ -38,11 +38,11 @@ async def get_complete_subjects(id: str, db: Session):
             s.CHLABORATORIAL AS chlaboratorial
           FROM CEMGJB_128187_RM_DV.dbo.SDISCIPLINA as s
           WHERE     
-            (ISNUMERIC(:id_param) = 1 AND s.CODDISC = :id_param)
+            (ISNUMERIC(:id) = 1 AND s.CODDISC = :id)
             OR
-            (ISNUMERIC(:id_param) = 0 AND s.NOME = :id_param)""")
+            (ISNUMERIC(:id) = 0 AND s.NOME = :id)""")
         
-        params = {"id_param": id}
+        params = {"id": id}
         
         subject_result_list = db.execute(sql_query_disciplina, params).mappings().all()
 
@@ -54,7 +54,7 @@ async def get_complete_subjects(id: str, db: Session):
 
         query_courses = text("""
           SELECT DISTINCT 
-            c.CODCURSO AS id, 
+            c.CODCURSO AS codcurso, 
             c.NOME AS name, 
             c.COMPLEMENTO AS complemento, 
             t.CODTURNO AS turno_id

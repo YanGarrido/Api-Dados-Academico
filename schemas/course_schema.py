@@ -20,3 +20,11 @@ class CourseWithSubjects(CourseInfo):
 class HasTurmaOut(BaseModel):
     tem_turma: bool
     quant_alunos: int
+
+class ClassInfo(BaseModel):
+    codcurso: int
+    nome: str | None = None
+    turno_nome: str
+    complemento: str | None = None
+    periodo: int
+    quant_alunos: int

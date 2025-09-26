@@ -83,7 +83,7 @@ async def get_course_with_subjects(course_id: int, db: Session):
        
         raise e
     
-async def has_class_period(codcurso: str,periodoletivo_id: int, periodo_id: int, codturno: int, db: Session):
+async def has_class_period(codcurso: str,periodoletivo_id: int, periodo: int, codturno: int, db: Session):
    try:
       sql_query=text("""
         WITH alvo AS (
@@ -93,7 +93,7 @@ async def has_class_period(codcurso: str,periodoletivo_id: int, periodo_id: int,
           ON HF.IDHABILITACAOFILIAL = M.IDHABILITACAOFILIAL 
         WHERE HF.CODCURSO = :codcurso
           AND M.IDPERLET = :periodoletivo_id
-          AND M.PERIODO = :periodo_id  
+          AND M.PERIODO = :periodo
           AND HF.CODTURNO = :codturno  
           AND M.CODSTATUS IN (1,9,16,23)
         )
@@ -101,7 +101,7 @@ async def has_class_period(codcurso: str,periodoletivo_id: int, periodo_id: int,
         CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) AS tem_turma,
         COUNT(*) AS quant_alunos
         FROM alvo; """)
-      result = db.execute(sql_query, {"codcurso": codcurso, "periodoletivo_id": periodoletivo_id, "periodo_id": periodo_id,"codturno":codturno}).mappings().first() or {"tem_turma": False, "quant_alunos": 0}
+      result = db.execute(sql_query, {"codcurso": codcurso, "periodoletivo_id": periodoletivo_id, "periodo": periodo,"codturno":codturno}).mappings().first() or {"tem_turma": False, "quant_alunos": 0}
       
       return {"tem_turma": bool(result["tem_turma"]), "quant_alunos": int(result["quant_alunos"])}
    except Exception as e:
@@ -110,3 +110,35 @@ async def has_class_period(codcurso: str,periodoletivo_id: int, periodo_id: int,
        raise e
       
       # todas as turmas nesses semestre ativas
+async def semester_class_active(periodo_letivo_id: int, periodo: int, codturno: int, db: Session):
+   try:
+      sql_query=text("""
+      SELECT
+        c.CODCURSO AS codcurso,
+        c.NOME AS nome,
+        c.COMPLEMENTO AS complemento,
+        tu.NOME AS turno_nome,
+        m.PERIODO AS periodo,
+        COUNT(DISTINCT m.RA) AS quant_alunos
+      FROM CEMGJB_128187_RM_DV.dbo.SCURSO c
+      JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL hf 
+        ON hf.CODCURSO = c.CODCURSO
+      JOIN CEMGJB_128187_RM_DV.dbo.SMATRICPL m  
+        ON m.IDHABILITACAOFILIAL = hf.IDHABILITACAOFILIAL
+      LEFT JOIN CEMGJB_128187_RM_DV.dbo.STURNO tu 
+        ON tu.CODTURNO = hf.CODTURNO
+      WHERE m.IDPERLET   = :periodo_letivo_id
+          AND m.CODSTATUS IN (1,9,16,23)             
+          AND m.PERIODO   IN (:periodo)             
+          AND hf.CODTURNO = :codturno
+      GROUP BY c.CODCURSO, c.NOME, c.COMPLEMENTO, tu.NOME, m.PERIODO
+      ORDER BY c.NOME, m.PERIODO;""")
+      
+      result = db.execute(sql_query, {"periodo_letivo_id":periodo_letivo_id, "periodo":periodo, "codturno":codturno}).mappings().all()
+      
+      return result
+   except Exception as e:
+       print(f"Erro ao buscar as turmas ativas nesse semestre: {e}")
+
+       raise e
+      
