@@ -17,6 +17,7 @@ async def get_all_courses(db: Session):
     JOIN CEMGJB_128187_RM_DV.dbo.STURNO
       ON SHABILITACAOFILIAL.CODTURNO = STURNO.CODTURNO 
     WHERE STURNO.CODTURNO IN (1, 2, 3)
+      AND SCURSO.CODCURSO IN ('1','2', '4', '5', '6','10','22')
     """)
     results = db.execute(sql_query).mappings().all()
     return results

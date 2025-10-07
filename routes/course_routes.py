@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from security import get_api_key 
+from security import authorization_api, get_api_key 
 from schemas.course_schema import ClassInfo, CourseInfo, CourseWithSubjects, HasTurmaOut
 from database import get_db
 from services import course_services
@@ -10,7 +10,7 @@ from services import course_services
 router = APIRouter(prefix="/api/courses", tags=["Courses"])
 
 @router.get("/", response_model=List[CourseInfo])
-async def read_courses(db: Session = Depends(get_db),api_key: str = Depends(get_api_key) ):
+async def read_courses(auth = Depends(authorization_api),db: Session = Depends(get_db),api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os cursos.
     """
@@ -97,7 +97,8 @@ async def has_class_period(codcurso: str,codturno: int, periodoletivo_id: int, p
 @router.get("/class/active/{periodo_letivo_id}/{periodo}/{codturno}", response_model=List[ClassInfo])
 async def semester_class_active(periodo_letivo_id: int, periodo: int, codturno: int, db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
-    Retorna uma lista de todas as turmas ativas em um semestre específico."""
+    Retorna uma lista de todas as turmas ativas em um semestre específico.
+    """
     try:
         class_details = await asyncio.wait_for(
             course_services.semester_class_active(periodo_letivo_id=periodo_letivo_id, periodo=periodo, codturno=codturno, db=db),
