@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from security import get_api_key 
+from security import authorization_api, get_api_key 
 from schemas.subject_schema import SubjectCompleteInfo, SubjectInfo
 from database import get_db
 from services import subjects_services
@@ -10,7 +10,7 @@ from services import subjects_services
 router = APIRouter(prefix="/api/subjects", tags=["Subjects"])
 
 @router.get("/", response_model=List[SubjectInfo])
-async def read_subjects(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_subjects(auth = Depends(authorization_api),db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todas as disciplinas.
     """
@@ -33,7 +33,7 @@ async def read_subjects(db: Session = Depends(get_db), api_key: str = Depends(ge
     
 
 @router.get("/{id}", response_model=SubjectCompleteInfo)
-async def get_subject_by_id(id: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_subject_by_id(id: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     subject = await subjects_services.get_complete_subjects(id=id, db=db)
     
     if not subject:
@@ -41,7 +41,7 @@ async def get_subject_by_id(id: str, db: Session = Depends(get_db), api_key: str
     return subject
 
 @router.get("/current/{codcurso}/{periodo_id}", response_model=List[SubjectInfo])
-async def get_subjects_current_semester(codcurso: str, periodo_id: int, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_subjects_current_semester(codcurso: str, periodo_id: int, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
      subject = await subjects_services.get_subjects_current_semester(codcurso=codcurso, periodo_id=periodo_id, db=db)
 
      if not subject:

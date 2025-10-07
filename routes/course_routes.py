@@ -39,7 +39,7 @@ async def read_courses(auth = Depends(authorization_api),db: Session = Depends(g
                             detail="Erro interno ao buscar cursos.")
 
 @router.get("/{course_id}", response_model=CourseWithSubjects, status_code=status.HTTP_200_OK)
-async def get_course_with_subjects(course_id: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_course_with_subjects(course_id: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna os detalhes de um curso específico, incluindo uma lista 
     com os nomes de todas as disciplinas desse curso.
@@ -70,7 +70,7 @@ async def get_course_with_subjects(course_id: str, db: Session = Depends(get_db)
 
 
 @router.get("/{codcurso}/{codturno}/{periodoletivo_id}/{periodo}/temTurma", response_model=HasTurmaOut)
-async def has_class_period(codcurso: str,codturno: int, periodoletivo_id: int, periodo: int, db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def has_class_period(codcurso: str,codturno: int, periodoletivo_id: int, periodo: int, auth = Depends(authorization_api), db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
 
     try:
         class_details = await asyncio.wait_for(
@@ -95,7 +95,7 @@ async def has_class_period(codcurso: str,codturno: int, periodoletivo_id: int, p
                             detail="Erro interno ao buscar informações da turma.")
 
 @router.get("/class/active/{periodo_letivo_id}/{periodo}/{codturno}", response_model=List[ClassInfo])
-async def semester_class_active(periodo_letivo_id: int, periodo: int, codturno: int, db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def semester_class_active(periodo_letivo_id: int, periodo: int, codturno: int, auth = Depends(authorization_api), db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todas as turmas ativas em um semestre específico.
     """

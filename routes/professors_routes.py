@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from schemas.subject_schema import SubjectInfo
-from security import get_api_key 
+from security import authorization_api, get_api_key 
 from schemas.professors_schema import ProfessorInfo, ProfessorWithSubjects
 from database import get_db
 from services import professors_services
@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 @router.get("/active", response_model=List[ProfessorInfo], status_code=status.HTTP_200_OK)
-async def read_active_professors(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_active_professors(auth = Depends(authorization_api),db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os professores ativos.
     """
@@ -37,7 +37,7 @@ async def read_active_professors(db: Session = Depends(get_db), api_key: str = D
                             detail="Erro interno ao buscar professores ativos.")
 
 @router.get("/inactive", response_model=List[ProfessorInfo], status_code=status.HTTP_200_OK)
-async def read_inactive_professors(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_inactive_professors(auth = Depends(authorization_api),db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma lista de todos os professores inativos.
     """
@@ -63,7 +63,7 @@ async def read_inactive_professors(db: Session = Depends(get_db), api_key: str =
 @router.get("/{professor_code}", 
     response_model=ProfessorWithSubjects, status_code=status.HTTP_200_OK, summary="Busca um professor e suas disciplinas"
 )
-async def get_professor_with_subjects(professor_code: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_professor_with_subjects(professor_code: str,auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna os detalhes de um professor específico, incluindo uma lista
     com os nomes de todas as disciplinas que ele leciona.
@@ -77,7 +77,7 @@ async def get_professor_with_subjects(professor_code: str, db: Session = Depends
     return professor_details
 
 @router.get("/active/{codcurso}/{periodo_id}", response_model=List[ProfessorInfo], status_code=status.HTTP_200_OK)
-async def get_professor_still_active(codcurso: str, periodo_id: int, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_professor_still_active(codcurso: str, periodo_id: int,auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna os detalhes de um professor específico que lecionava em semestres anteriores e que continua ativo
     """

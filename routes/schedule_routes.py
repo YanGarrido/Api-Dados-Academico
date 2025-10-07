@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from security import get_api_key 
+from security import authorization_api, get_api_key 
 from schemas.schedule_schema import ScheduleInfo
 from database import get_db
 from services import schedule_services
@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[ScheduleInfo], status_code=status.HTTP_200_OK)
-async def read_schedules(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)): 
+async def read_schedules(auth = Depends(authorization_api),db: Session = Depends(get_db), api_key: str = Depends(get_api_key)): 
     """
     Retorna uma lista de todos os horários.
     """

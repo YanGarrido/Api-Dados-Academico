@@ -2,7 +2,7 @@ import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from security import get_api_key 
+from security import authorization_api, get_api_key 
 from schemas.curriculum_schema import CurriculumInfo
 from database import get_db
 from services import curriculum_services
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/curriculums", tags=["Curriculum"])
 
 
 @router.get("/", response_model=List[CurriculumInfo])
-async def read_curriculum(db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_curriculum(auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna o currículo de um curso específico.
     """
@@ -33,7 +33,7 @@ async def read_curriculum(db: Session = Depends(get_db), api_key: str = Depends(
                             detail="Erro interno ao buscar currículo.")
 
 @router.get("/{curso}", response_model=List[CurriculumInfo])
-async def read_curriculum_course(curso: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_curriculum_course(curso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna o currículo de um curso específico.
     """
@@ -55,7 +55,7 @@ async def read_curriculum_course(curso: str, db: Session = Depends(get_db), api_
                             detail="Erro interno ao buscar currículo.")
     
 @router.get("/old/{curso}", response_model=List[CurriculumInfo])
-async def read_old_curriculum(curso: str, db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_old_curriculum(curso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna o currículo antigo de um curso específico.
     """
