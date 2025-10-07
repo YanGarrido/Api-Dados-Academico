@@ -8,7 +8,7 @@ from database_validation import get_db_mysql
 
 dotenv.load_dotenv()
 
-api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False,description="Chave de Acesso da Aplicação.")
 auth_header = "Authorization"
 TABELA_APLICACOES = "carteiras.tblaplicacoes"
 
