@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from schemas.subject_schema import SubjectInfo, SubjectCompleteInfo
+from typing import List
 
 async def get_all_subjects(db: Session):
   try:
@@ -75,37 +76,50 @@ async def get_complete_subjects(id: str, db: Session):
     except Exception as e:
         print(f"Erro ao executar a consulta SQL: {e}")
         return None
+
+async def get_subjects_current_semester(codcursos: List[str], periodo_id: int, db: Session):
+    print(f"Período: {periodo_id}, Cursos: {codcursos}")
+    try:
+        # Criar placeholders dinâmicos para múltiplos cursos
+        placeholders = ",".join([f":codcurso_{i}" for i in range(len(codcursos))])
+        
+        sql_query = text(f"""
+            SELECT DISTINCT
+                s.CODDISC AS disciplina_id, 
+                s.NOME AS name, 
+                s.CH AS ch, 
+                s.CHESTAGIO AS chestagio, 
+                s.CHTEORICA AS chteorica,
+                s.CHPRATICA AS chpratica, 
+                s.CHEXTENSAO AS chextensao, 
+                s.CHLABORATORIAL AS chlaboratorial
+            FROM CEMGJB_128187_RM_DV.dbo.SDISCIPLINA s
+            JOIN CEMGJB_128187_RM_DV.dbo.STURMADISC td 
+                ON td.CODDISC = s.CODDISC
+            JOIN CEMGJB_128187_RM_DV.dbo.STURMA t  
+                ON t.CODTURMA = td.CODTURMA      
+            JOIN CEMGJB_128187_RM_DV.dbo.STURNO tu 
+                ON tu.CODFILIAL = t.CODFILIAL        
+            JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL hf 
+                ON hf.IDHABILITACAOFILIAL = t.IDHABILITACAOFILIAL  
+            WHERE td.IDPERLET = :periodo_id
+                AND tu.CODTURNO IN (1,2,3)               
+                AND hf.CODCURSO IN ({placeholders})           
+            ORDER BY s.NOME
+        """)
+        
+        # Criar parâmetros dinâmicos
+        params = {"periodo_id": periodo_id}
+        for i, curso in enumerate(codcursos):
+            params[f"codcurso_{i}"] = curso
+        
+        print(f"Query executada: {sql_query}")
+        print(f"Parâmetros: {params}")
+        
+        rows = db.execute(sql_query, params).mappings().all()
+        print(f"Encontradas {len(rows)} disciplinas")
+        return rows
     
-async def get_subjects_current_semester(codcurso: str, periodo_id: int, db: Session):
-  print(periodo_id)
-  try:
-       sql_query = text("""
-          SELECT DISTINCT
-            s.CODDISC AS disciplina_id, 
-            s.NOME AS name, 
-            s.CH AS ch, 
-            s.CHESTAGIO AS chestagio, 
-            s.CHTEORICA AS chteorica,
-            s.CHPRATICA AS chpratica, 
-            s.CHEXTENSAO AS chextensao, 
-            s.CHLABORATORIAL AS chlaboratorial
-          FROM CEMGJB_128187_RM_DV.dbo.SDISCIPLINA s
-          JOIN CEMGJB_128187_RM_DV.dbo.STURMADISC td 
-            ON td.CODDISC = s.CODDISC
-          JOIN CEMGJB_128187_RM_DV.dbo.STURMA t  
-            ON t.CODTURMA = td.CODTURMA      
-          JOIN CEMGJB_128187_RM_DV.dbo.STURNO tu 
-            ON tu.CODFILIAL  = t.CODFILIAL        
-          JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL hf 
-            ON hf.IDHABILITACAOFILIAL = t.IDHABILITACAOFILIAL  
-          WHERE td.IDPERLET = :periodo_id
-            AND tu.CODTURNO IN (1,2,3)               
-            AND hf.CODCURSO = :codcurso           
-          ORDER BY s.NOME;""")  
-       params = {"periodo_id": periodo_id, "codcurso": codcurso}
-       rows = db.execute(sql_query, params).mappings().all()
-       return rows
-  
-  except Exception as e:
+    except Exception as e:
         print(f"Erro ao executar a consulta SQL: {e}")
         return None

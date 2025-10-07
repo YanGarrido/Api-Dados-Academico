@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List
 from security import authorization_api, get_api_key 
@@ -40,10 +40,50 @@ async def get_subject_by_id(id: str, auth = Depends(authorization_api), db: Sess
         raise HTTPException(status_code=404, detail="Disciplina não encontrada")
     return subject
 
-@router.get("/current/{codcurso}/{periodo_id}", response_model=List[SubjectInfo])
-async def get_subjects_current_semester(codcurso: str, periodo_id: int, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
-     subject = await subjects_services.get_subjects_current_semester(codcurso=codcurso, periodo_id=periodo_id, db=db)
+@router.get("/current/{periodo_id}", response_model=List[SubjectInfo])
+async def get_subjects_current_semester(
+    periodo_id: int,
+    codcurso: str = Query(..., description="Códigos de curso separados por vírgula", example="1,2,4,5,6,10,22"),
+    auth = Depends(authorization_api), 
+    db: Session = Depends(get_db), 
+    api_key: str = Depends(get_api_key)
+):
+    """
+    Retorna disciplinas do semestre atual para múltiplos cursos.
+    
+    **Exemplo de uso:**
+    - `/current/56?codcurso=1,2,4,5,6,10,22`
+    """
+    try:
+        # Agora codcurso é string, pode usar .split()
+        codcurso_list = [
+            curso.strip().strip('"').strip("'") 
+            for curso in codcurso.split(",") 
+            if curso.strip()
+        ]
+        
+        if not codcurso_list:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Pelo menos um código de curso deve ser informado"
+            )
 
-     if not subject:
-        raise HTTPException(status_code=404, detail="Disciplina não encontrada")
-     return subject
+        subjects = await subjects_services.get_subjects_current_semester(
+            codcursos=codcurso_list, 
+            periodo_id=periodo_id, 
+            db=db
+        )
+
+        if not subjects:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail="Nenhuma disciplina encontrada para os cursos informados"
+            )
+        return subjects
+     
+    except Exception as e:
+        print(f"Erro ao buscar disciplinas: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail="Erro interno ao buscar disciplinas"
+        )
