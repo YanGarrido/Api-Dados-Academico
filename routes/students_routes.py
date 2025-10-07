@@ -11,10 +11,16 @@ router = APIRouter(
     prefix="/api/students", 
     tags=["Students"])
 
-@router.get("/active", response_model=List[StudentInfo], status_code=status.HTTP_200_OK)
+@router.get("/active", response_model=List[StudentInfo], summary="Lista todos os alunos ativos", responses={
+    200:{"description": "Lista de alunos ativos retornada com sucesso."},
+    404:{"description": "Nenhum aluno ativo foi encontrado."},
+    500:{"description": "Erro interno ao buscar alunos ativos."},
+    504:{"description": "Tempo limite excedido ao buscar alunos ativos."}
+}
+)
 async def read_active_students(auth = Depends(authorization_api),db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
-    Retorna uma lista de todos os alunos ativos.
+    Retorna uma json de todos os alunos que estão ativos.
     """
     try:
         active_students = await asyncio.wait_for(
@@ -33,10 +39,16 @@ async def read_active_students(auth = Depends(authorization_api),db: Session = D
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar alunos ativos.")
 
-@router.get("/inactive", response_model=List[StudentInfo], status_code=status.HTTP_200_OK)
+@router.get("/inactive", response_model=List[StudentInfo], summary="Lista todos os alunos inativos", responses={
+    200:{"description": "Lista de alunos inativos retornada com sucesso."},
+    404:{"description": "Nenhum aluno inativo foi encontrado."},
+    500:{"description": "Erro interno ao buscar alunos inativos."},
+    504:{"description": "Tempo limite excedido ao buscar alunos inativos."}
+}
+)
 async def read_inactive_students(auth = Depends(authorization_api), db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
-    Retorna uma lista de todos os alunos inativos.
+    Retorna uma json de todos os alunos que estão inativos.
     """
     try:
         inactive_students = await asyncio.wait_for(
@@ -55,10 +67,16 @@ async def read_inactive_students(auth = Depends(authorization_api), db: Session 
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar alunos inativos.")
 
-@router.get("/former", response_model=List[StudentInfo], status_code=status.HTTP_200_OK)
+@router.get("/former", response_model=List[StudentInfo], summary="Lista todos os ex-alunos", responses={
+    200:{"description": "Lista de ex-alunos retornada com sucesso."},
+    404:{"description": "Nenhum ex-aluno encontrado."},
+    500:{"description": "Erro interno ao buscar ex-alunos."},
+    504:{"description": "Tempo limite excedido ao buscar ex-alunos."}
+}
+)
 async def read_former_students(auth = Depends(authorization_api),db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
-    Retorna uma lista de todos os alunos ex-alunos.
+    Retorna uma json de todos os alunos ex-alunos.
     """
     try:
         former_students = await asyncio.wait_for(
@@ -75,10 +93,16 @@ async def read_former_students(auth = Depends(authorization_api),db: Session = D
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar ex-alunos.")
 
-@router.get("/active/{ra}", response_model=StudentInfo, status_code=status.HTTP_200_OK)
+@router.get("/active/{ra}", response_model=StudentInfo, summary="Busca um aluno ativo pelo RA", responses={
+    200:{"description": "Detalhes do aluno retornados com sucesso."},
+    400:{"description": "RA não pode ser vazio."},
+    404:{"description": "Aluno não encontrado ou não está ativo."},
+    500:{"description": "Erro interno ao buscar aluno."},
+    504:{"description": "Tempo limite excedido ao buscar aluno."}
+})
 async def read_active_student_by_ra(ra: str, auth = Depends(authorization_api),db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
-    Retorna informações de um aluno ativo pelo RA.
+    Retorna uma json com as informações de um aluno ativo pelo RA.
     """
     try:
         if not ra:
@@ -100,7 +124,13 @@ async def read_active_student_by_ra(ra: str, auth = Depends(authorization_api),d
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar aluno ativo pelo RA.")  
     
-@router.get("/active/courses/{ra}", response_model=StudentWithCourses, status_code=status.HTTP_200_OK)
+@router.get("/active/courses/{ra}", response_model=StudentWithCourses, summary="Busca um aluno ativo pelo RA com seus cursos", responses={
+    200:{"description": "Detalhes do aluno com cursos retornados com sucesso."},
+    400:{"description": "RA não pode ser vazio."},
+    404:{"description": "Aluno não encontrado ou não está ativo."},
+    500:{"description": "Erro interno ao buscar aluno."},
+    504:{"description": "Tempo limite excedido ao buscar aluno."}
+})
 async def read_active_student_with_course(ra: str, auth = Depends(authorization_api), db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     try:
         if not ra:
