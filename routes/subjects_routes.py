@@ -10,7 +10,22 @@ from services import subjects_services
 router = APIRouter(prefix="/api/subjects", tags=["Subjects"])
 
 @router.get("/", response_model=List[SubjectInfo], summary="Lista todas as disciplinas", responses={
-    200:{"description": "Lista de disciplinas retornada com sucesso."},
+    200:{"description": "Lista de disciplinas retornada com sucesso.", 
+         "content":{
+           "example": [
+                {
+                    "disciplina_id": "100",
+                    "name": "Banco de Dados",
+                    "ch": 60,
+                    "chestagio": 0,
+                    "chteorica": 40,
+                    "chpratica": 20,
+                    "chextensao": 0,
+                    "chlaboratorial": 0
+                }
+           ]
+        } 
+    },
     404:{"description": "Nenhuma disciplina foi encontrada."},
     500:{"description": "Erro interno ao buscar disciplinas."},
     504:{"description": "Tempo limite excedido ao buscar disciplinas."}
@@ -39,7 +54,30 @@ async def read_subjects(auth = Depends(authorization_api),db: Session = Depends(
     
 
 @router.get("/{id}", response_model=SubjectCompleteInfo, summary="Detalhes de uma disciplina específica", responses={
-    200:{"description": "Detalhes da disciplina retornados com sucesso."},
+    200:{"description": "Detalhes da disciplina retornados com sucesso.",
+        "content": {
+            "application/json": {
+                "example": {
+                    "disciplina_id": "100",
+                    "name": "Banco de Dados",
+                    "ch": 60,
+                    "chestagio": 0,
+                    "chteorica": 40,
+                    "chpratica": 20,
+                    "chextensao": 0,
+                    "chlaboratorial": 0,
+                    "cursos": [
+                        {
+                            "codcurso": "3",
+                            "name": "Sistemas de Informação",
+                            "turno_id": 1,
+                            "complemento": "SI"
+                        }
+                    ],
+                }
+            }
+        }
+    },
     404:{"description": "Disciplina não encontrada."},
     500:{"description": "Erro interno ao buscar disciplina."},
     504:{"description": "Tempo limite excedido ao buscar disciplina."}
@@ -68,7 +106,25 @@ async def get_subject_by_id(id: str, auth = Depends(authorization_api), db: Sess
                             detail="Erro interno ao buscar disciplina.")
 
 @router.get("/current/{periodo_id}", response_model=List[SubjectInfo], summary="Lista disciplinas do semestre atual para múltiplos cursos", responses={
-    200:{"description": "Lista de disciplinas retornada com sucesso."},
+    200:{
+        "description": "Lista de disciplinas retornada com sucesso.",
+        "content":{
+            "application/json": {
+                "example": [
+                    {
+                        "disciplina_id": "100",
+                        "name": "Banco de Dados",
+                        "ch": 60,
+                        "chestagio": 0,
+                        "chteorica": 40,
+                        "chpratica": 20,
+                        "chextensao": 0,
+                        "chlaboratorial": 0
+                    }
+                ]
+            }
+        }
+    },
     400:{"description": "Pelo menos um código de curso deve ser informado."},
     404:{"description": "Nenhuma disciplina encontrada para os cursos informados."},
     500:{"description": "Erro interno ao buscar disciplinas."},
