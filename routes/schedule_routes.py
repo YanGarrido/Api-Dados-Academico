@@ -7,15 +7,18 @@ from schemas.schedule_schema import ScheduleInfo
 from database import get_db
 from services import schedule_services
 
-router = APIRouter(
-    prefix="/api/schedules",
-    tags=["Schedules"]
-)
+router = APIRouter(prefix="/api/schedules", tags=["Schedules"])
 
-@router.get("/", response_model=List[ScheduleInfo], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=List[ScheduleInfo], summary="Lista todos os horários", responses={
+    200:{"description": "Lista de horários retornada com sucesso."},
+    404:{"description": "Nenhum horário foi encontrado."},
+    500:{"description": "Erro interno ao buscar horários."},
+    504:{"description": "Tempo limite excedido ao buscar horários."}
+}
+)
 async def read_schedules(auth = Depends(authorization_api),db: Session = Depends(get_db), api_key: str = Depends(get_api_key)): 
     """
-    Retorna uma lista de todos os horários.
+    Retorna uma json com todos os horários disponíveis para a realização de aulas.
     """
     try:
         schedules = await asyncio.wait_for(
