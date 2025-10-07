@@ -2,12 +2,14 @@ from fastapi import FastAPI, Security, HTTPException, status
 from database import engine, Base
 from routes import professors_routes, students_routes, course_routes, schedule_routes, curriculum_routes, subjects_routes
 
+from documentacao import api_description, tags_metadata
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="API DADOS ACADÊMICOS",
     version="1.0.0",
-    description="Uma API para consultar os dados academicos."
+    description=api_description,
+    openapi_tags=tags_metadata
 )
 
 app.include_router(professors_routes.router)
