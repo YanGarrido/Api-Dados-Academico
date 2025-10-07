@@ -16,7 +16,7 @@ async def get_curriculum(db:Session):
     s.CODGRADE AS codgrade,
     s.DESCRICAO AS descricao  
     FROM CEMGJB_128187_RM_DV.dbo.SDISCGRADE s 
-    WHERE s.CODGRADE ='20231' AND s.CODPERIODO != 0
+    WHERE s.CODGRADE ='20231' AND s.CODPERIODO != 0 AND s.CODCURSO IN ('1','2','4','5','6','10','22')
     """)
     results = db.execute(sql_query).mappings().all()
     return results
