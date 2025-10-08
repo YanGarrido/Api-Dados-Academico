@@ -76,7 +76,7 @@ async def read_inactive_students(auth = Depends(authorization_api), db: Session 
 )
 async def read_former_students(auth = Depends(authorization_api),db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
-    Retorna uma json de todos os alunos ex-alunos.
+    Retorna uma lista de json de todos os alunos ex-alunos.
     """
     try:
         former_students = await asyncio.wait_for(
@@ -102,7 +102,7 @@ async def read_former_students(auth = Depends(authorization_api),db: Session = D
 })
 async def read_active_student_by_ra(ra: str, auth = Depends(authorization_api),db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
     """
-    Retorna uma json com as informações de um aluno ativo pelo RA.
+    Retorna uma lista de json com as informações de um aluno ativo pelo RA.
     """
     try:
         if not ra:

@@ -38,19 +38,19 @@ async def read_curriculum(auth = Depends(authorization_api), db: Session = Depen
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar currículo.")
 
-@router.get("/{curso}", response_model=List[CurriculumInfo], summary="Currículo de um curso específico", responses={
+@router.get("/{codcurso}", response_model=List[CurriculumInfo], summary="Currículo de um curso específico", responses={
     200:{"description": "Currículo retornado com sucesso."},
     404:{"description": "Nenhum currículo encontrado."},
     500:{"description": "Erro interno ao buscar currículo."},
     504:{"description": "Tempo limite excedido ao buscar currículo."}
 })
-async def read_curriculum_course(curso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_curriculum_course(codcurso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna a grade curricular de um curso específico.
     """
     try:
         curriculum = await asyncio.wait_for(
-            curriculum_services.get_curriculum_current_course(curso,db), 
+            curriculum_services.get_curriculum_current_course(codcurso, db), 
             timeout=60.0
         )
         if not curriculum:
@@ -65,19 +65,19 @@ async def read_curriculum_course(curso: str, auth = Depends(authorization_api), 
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar currículo.")
     
-@router.get("/old/{curso}", response_model=List[CurriculumInfo], summary="Currículo antigo de um curso específico", responses={
+@router.get("/old/{codcurso}", response_model=List[CurriculumInfo], summary="Currículo antigo de um curso específico", responses={
     200:{"description": "Currículo antigo retornado com sucesso."},
     404:{"description": "Nenhum currículo antigo encontrado."},
     500:{"description": "Erro interno ao buscar currículo antigo."},
     504:{"description": "Tempo limite excedido ao buscar currículo antigo."}
 })
-async def read_old_curriculum(curso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def read_old_curriculum(codcurso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna a grade curricular antiga de um curso específico.
     """
     try:
         curriculum = await asyncio.wait_for(
-            curriculum_services.get_old_curriculum(curso,db), 
+            curriculum_services.get_old_curriculum(codcurso,db), 
             timeout=60.0
         )
         if not curriculum:

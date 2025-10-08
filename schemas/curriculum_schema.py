@@ -2,8 +2,8 @@ from pydantic import BaseModel, ConfigDict
 
 class CurriculumInfo(BaseModel):
     periodo: int
-    curso_id: str
-    disciplina_id: str
+    codcurso: str
+    coddisc: str
     codgrade: str | None = None
     descricao: str | None = None
 

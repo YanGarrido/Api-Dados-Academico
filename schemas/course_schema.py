@@ -3,8 +3,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class CourseInfo(BaseModel):
     codcurso: int
-    name: str | None = None
-    turno_id: int
+    nome: str | None = None
+    codturno: int
     complemento: str | None = None
 
 
@@ -12,7 +12,7 @@ class CourseInfo(BaseModel):
 
 class BaseSubject(BaseModel):
     coddisc: str
-    name: str
+    nome: str
 
 class CourseWithSubjects(CourseInfo):
    subjects: List[BaseSubject] = []

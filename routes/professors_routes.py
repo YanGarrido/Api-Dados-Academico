@@ -105,13 +105,13 @@ async def get_professor_with_subjects(professor_code: str,auth = Depends(authori
     500:{"description": "Erro interno ao buscar professores."},
     504:{"description": "Tempo limite excedido ao buscar professores."}
 })
-async def get_professor_still_active(codcurso: str, periodo_id: int,auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_professor_still_active(codcurso: str, periodo_letivo_id: int,auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna os detalhes de um professor específico que lecionava em semestres anteriores e que continua ativo
     """
     try:
         professor_details = await asyncio.wait_for(
-            professors_services.get_professor_still_active(codcurso=codcurso, periodo_id=periodo_id, db=db), 
+            professors_services.get_professor_still_active(codcurso=codcurso, periodo_letivo_id=periodo_letivo_id, db=db), 
             timeout=60.0
             )
 

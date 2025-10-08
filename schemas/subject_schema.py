@@ -2,8 +2,8 @@ from pydantic import BaseModel, ConfigDict
 from schemas.course_schema import CourseInfo
 
 class SubjectInfo(BaseModel):
-    disciplina_id: str
-    name: str | None = None
+    coddisc: str
+    nome: str | None = None
     ch: int | None = None
     chestagio: int | None = None
     chteorica: int | None = None
@@ -14,8 +14,8 @@ class SubjectInfo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class SubjectCompleteInfo(SubjectInfo):
-    disciplina_id: str
-    name: str | None = None
+    coddisc: str
+    nome: str | None = None
     ch: int | None = None
     chestagio: int | None = None
     chteorica: int | None = None

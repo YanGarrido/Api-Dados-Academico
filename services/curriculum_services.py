@@ -24,7 +24,7 @@ async def get_curriculum(db:Session):
     print(f"Erro ao executar a consulta SQL: {e}")
     raise e
 
-async def get_curriculum_current_course(curso: str,db:Session):
+async def get_curriculum_current_course(codcurso: str,db:Session):
   """
   Executa a query SQL para buscar o currículo de um curso específico.
   """
@@ -37,15 +37,15 @@ async def get_curriculum_current_course(curso: str,db:Session):
     s.CODGRADE AS codgrade,
     s.DESCRICAO AS descricao
     FROM CEMGJB_128187_RM_DV.dbo.SDISCGRADE s 
-    WHERE s.CODCURSO = :curso AND s.CODGRADE ='20231' AND s.CODPERIODO != 0
+    WHERE s.CODCURSO = :codcurso AND s.CODGRADE ='20231' AND s.CODPERIODO != 0
     """)
-    results = db.execute(sql_query, {"curso": curso}).mappings().all()
+    results = db.execute(sql_query, {"codcurso": codcurso}).mappings().all()
     return results
   except Exception as e:
     print(f"Erro ao executar a consulta SQL: {e}")
     raise e
   
-async def get_old_curriculum(curso: str, db:Session):
+async def get_old_curriculum(codcurso: str, db:Session):
   """
   Executa a query SQL para buscar o currículo dos cursos.
   """
@@ -58,9 +58,9 @@ async def get_old_curriculum(curso: str, db:Session):
     s.CODGRADE AS codgrade,
     s.DESCRICAO AS descricao 
     FROM CEMGJB_128187_RM_DV.dbo.SDISCGRADE s 
-    WHERE s.CODCURSO = :curso AND s.CODGRADE ='20172' AND s.CODPERIODO != 0
+    WHERE s.CODCURSO = :codcurso AND s.CODGRADE ='20172' AND s.CODPERIODO != 0
     """)
-    results = db.execute(sql_query, {"curso": curso}).mappings().all()
+    results = db.execute(sql_query, {"codcurso": codcurso}).mappings().all()
     return results
   except Exception as e:
     print(f"Erro ao executar a consulta SQL: {e}")

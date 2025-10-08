@@ -44,26 +44,26 @@ async def read_courses(auth = Depends(authorization_api),db: Session = Depends(g
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar cursos.")
 
-@router.get("/{course_id}", response_model=CourseWithSubjects,summary="Detalhes de um curso específico",responses={
+@router.get("/{codcurso}", response_model=CourseWithSubjects,summary="Detalhes de um curso específico",responses={
     200:{"description": "Detalhes do curso retornados com sucesso."},
     404:{"description": "Curso não encontrado."},
     500:{"description": "Erro interno ao buscar detalhes do curso."},
     504:{"description": "Tempo limite excedido ao buscar detalhes do curso."}
 })
-async def get_course_with_subjects(course_id: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_course_with_subjects(codcurso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna os detalhes de um curso específico, incluindo uma lista 
     com os nomes de todas as disciplinas desse curso.
     """
     try:
         course_details = await asyncio.wait_for(
-            course_services.get_course_with_subjects(course_id=course_id, db=db), 
+            course_services.get_course_with_subjects(codcurso=codcurso, db=db), 
             timeout=60.0
             )
         
         if not course_details:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                                detail=f"Curso com código '{course_id}' não encontrado.")
+                                detail=f"Curso com código '{codcurso}' não encontrado.")
         
         return course_details
 

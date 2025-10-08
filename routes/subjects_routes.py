@@ -53,7 +53,7 @@ async def read_subjects(auth = Depends(authorization_api),db: Session = Depends(
                             detail="Erro interno ao buscar disciplinas.")
     
 
-@router.get("/{id}", response_model=SubjectCompleteInfo, summary="Detalhes de uma disciplina específica", responses={
+@router.get("/{coddisc}", response_model=SubjectCompleteInfo, summary="Detalhes de uma disciplina específica", responses={
     200:{"description": "Detalhes da disciplina retornados com sucesso.",
         "content": {
             "application/json": {
@@ -82,13 +82,13 @@ async def read_subjects(auth = Depends(authorization_api),db: Session = Depends(
     500:{"description": "Erro interno ao buscar disciplina."},
     504:{"description": "Tempo limite excedido ao buscar disciplina."}
 })
-async def get_subject_by_id(id: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def get_subject_by_id(coddisc: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Retorna uma json com as informações de uma disciplina específica.
     """
     try:       
         subject = await asyncio.wait_for(
-            subjects_services.get_complete_subjects(id=id, db=db), 
+            subjects_services.get_complete_subjects(coddisc=coddisc, db=db), 
             timeout=60.0
             )
         
@@ -105,7 +105,7 @@ async def get_subject_by_id(id: str, auth = Depends(authorization_api), db: Sess
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail="Erro interno ao buscar disciplina.")
 
-@router.get("/current/{periodo_id}", response_model=List[SubjectInfo], summary="Lista disciplinas do semestre atual para múltiplos cursos", responses={
+@router.get("/current/{periodo_letivo_id}", response_model=List[SubjectInfo], summary="Lista disciplinas do semestre atual para múltiplos cursos", responses={
     200:{
         "description": "Lista de disciplinas retornada com sucesso.",
         "content":{
@@ -131,7 +131,7 @@ async def get_subject_by_id(id: str, auth = Depends(authorization_api), db: Sess
     504:{"description": "Tempo limite excedido ao buscar disciplinas."}
 })
 async def get_subjects_current_semester(
-    periodo_id: int,
+    periodo_letivo_id: int,
     codcurso: str = Query(..., description="Códigos de curso separados por vírgula", example="1,2,4,5,6,10,22"),
     auth = Depends(authorization_api), 
     db: Session = Depends(get_db), 
@@ -156,7 +156,7 @@ async def get_subjects_current_semester(
         subjects = await asyncio.wait_for(
             subjects_services.get_subjects_current_semester(
                 codcursos=codcurso_list, 
-                periodo_id=periodo_id, 
+                periodo_letivo_id=periodo_letivo_id, 
                 db=db
             ),
             timeout=60.0

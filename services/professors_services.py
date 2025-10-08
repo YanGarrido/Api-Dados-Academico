@@ -10,7 +10,7 @@ async def get_active_professors(db: Session):
       sql_query = text("""
           SELECT DISTINCT
             GUS.CODUSUARIO AS code,
-            PESSOA.NOME AS name, 
+            PESSOA.NOME AS nome, 
             PESSOA.EMAILPESSOAL AS emailpessoal,
             PESSOA.EMAIL AS email,
             PESSOA.CPF AS cpf
@@ -49,7 +49,7 @@ async def get_professors_inactive(db: Session):
       sql_query = text("""
         SELECT
           GUS.CODUSUARIO AS code,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAIL AS email
       
         FROM
@@ -87,7 +87,7 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
         query_professor = text("""
             SELECT
                 GUS.CODUSUARIO AS code,
-                PESSOA.NOME AS name,
+                PESSOA.NOME AS nome,
                 PESSOA.CPF AS cpf,
                 PESSOA.EMAILPESSOAL AS emailpessoal,
                 PESSOA.EMAIL AS email
@@ -95,10 +95,10 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
                 CEMGJB_128187_RM_DV.dbo.GUSUARIO AS GUS
                 JOIN CEMGJB_128187_RM_DV.dbo.PPESSOA AS PESSOA ON GUS.CODUSUARIO = PESSOA.CODUSUARIO
             WHERE
-                GUS.CODUSUARIO = :codigo_prof
+                GUS.CODUSUARIO = :codigo_professor
         """)
-        
-        professor_data = db.execute(query_professor, {"codigo_prof": codigo_professor}).mappings().first()
+
+        professor_data = db.execute(query_professor, {"codigo_professor": codigo_professor}).mappings().first()
 
         # Se o professor não for encontrado, retorna None imediatamente
         if not professor_data:
@@ -117,12 +117,12 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
                 JOIN CEMGJB_128187_RM_DV.dbo.PPESSOA AS PESSOA ON PROF.CODPESSOA = PESSOA.CODIGO
                 JOIN CEMGJB_128187_RM_DV.dbo.GUSUARIO AS GUS ON PESSOA.CODUSUARIO = GUS.CODUSUARIO
             WHERE
-                GUS.CODUSUARIO = :codigo_prof
+                GUS.CODUSUARIO = :codigo_professor
             ORDER BY
                 DISC.NOME
         """)
-        
-        disciplinas_result = db.execute(query_disciplinas, {"codigo_prof": codigo_professor}).mappings().all()
+
+        disciplinas_result = db.execute(query_disciplinas, {"codigo_professor": codigo_professor}).mappings().all()
         
         # Extrai apenas os nomes das disciplinas para uma lista de strings
         lista_de_nomes_disciplinas = [
@@ -142,7 +142,7 @@ async def get_professors_with_subjects(codigo_professor: str, db: Session):
         print(f"Erro ao buscar professor com disciplinas: {e}")
         raise e
     
-async def get_professor_still_active(codcurso: str, periodo_id: int, db:Session):
+async def get_professor_still_active(codcurso: str, periodo_letivo_id: int, db:Session):
     try:
         sql_query=text("""
         WITH prof_prev AS (
@@ -157,7 +157,7 @@ async def get_professor_still_active(codcurso: str, periodo_id: int, db:Session)
           JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL HF
             ON HF.IDHABILITACAOFILIAL = TD.IDHABILITACAOFILIAL
           WHERE HF.CODCURSO   = :codcurso
-            AND TD.IDPERLET   < :periodo_id
+            AND TD.IDPERLET   < :periodo_letivo_id
           ),
         prof_curr AS (
           SELECT DISTINCT PROF.CODPESSOA
@@ -171,11 +171,11 @@ async def get_professor_still_active(codcurso: str, periodo_id: int, db:Session)
           JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL HF
             ON HF.IDHABILITACAOFILIAL = TD.IDHABILITACAOFILIAL
           WHERE HF.CODCURSO   = :codcurso
-            AND TD.IDPERLET   = :periodo_id
+            AND TD.IDPERLET   = :periodo_letivo_id
           )
         SELECT DISTINCT
           GUS.CODUSUARIO AS code,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAILPESSOAL AS emailpessoal,
           PESSOA.EMAIL AS email,
           PESSOA.CPF AS cpf
@@ -188,7 +188,7 @@ async def get_professor_still_active(codcurso: str, periodo_id: int, db:Session)
           ON PESSOA.CODUSUARIO = GUS.CODUSUARIO
         ORDER BY PESSOA.NOME;
         """)
-        results = db.execute(sql_query, {"codcurso":codcurso,"periodo_id":periodo_id}).mappings().all()
+        results = db.execute(sql_query, {"codcurso":codcurso,"periodo_letivo_id":periodo_letivo_id}).mappings().all()
         return results
     
     except Exception as e:

@@ -10,7 +10,7 @@ async def get_active_students(db: Session):
       sql_query = text("""
         SELECT DISTINCT
           ALUNO.RA AS ra,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAIL AS emailpessoal,
           SALUNOCOMPL.EMAIL AS email,
           PESSOA.TELEFONE1  AS telefone,
@@ -39,7 +39,7 @@ async def get_active_student_by_ra(ra: str, db: Session):
       sql_query = text("""
         SELECT DISTINCT
           ALUNO.RA AS ra,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAIL AS emailpessoal,
           SALUNOCOMPL.EMAIL AS email,
           PESSOA.TELEFONE1  AS telefone,
@@ -66,7 +66,7 @@ async def get_inactive_students(db: Session):
       sql_query = text("""
         SELECT DISTINCT
           ALUNO.RA AS ra,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAIL AS emailpessoal,
           SALUNOCOMPL.EMAIL AS email,
           PESSOA.TELEFONE1  AS telefone,
@@ -95,7 +95,7 @@ async def get_former_students(db: Session):
       sql_query = text("""
        SELECT DISTINCT
           ALUNO.RA AS ra,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAIL AS emailpessoal,
           SALUNOCOMPL.EMAIL AS email,
           PESSOA.TELEFONE1  AS telefone,
@@ -123,7 +123,7 @@ async def get_active_student_with_course(ra: str, db: Session):
       query_student = text("""
       SELECT DISTINCT
           ALUNO.RA AS ra,
-          PESSOA.NOME AS name,
+          PESSOA.NOME AS nome,
           PESSOA.EMAIL AS emailpessoal,
           SALUNOCOMPL.EMAIL AS email,
           PESSOA.TELEFONE1  AS telefone,
@@ -148,8 +148,8 @@ async def get_active_student_with_course(ra: str, db: Session):
       query_courses = text("""
       SELECT DISTINCT 
         SCURSO.CODCURSO AS codcurso, 
-        SCURSO.NOME AS name, 
-        STURNO.CODTURNO AS turno_id  
+        SCURSO.NOME AS nome, 
+        STURNO.CODTURNO AS codtuno  
       FROM CEMGJB_128187_RM_DV.dbo.SCURSO
       JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL
         ON SHABILITACAOFILIAL.CODCURSO = SCURSO.CODCURSO
@@ -164,7 +164,7 @@ async def get_active_student_with_course(ra: str, db: Session):
       courses_result = db.execute(query_courses, {"ra": ra}).mappings().all()
 
       courses_list = [
-         {"codcurso": item["codcurso"], "name": item["name"], "turno_id": item["turno_id"]}
+         {"codcurso": item["codcurso"], "nome": item["nome"], "codturno": item["codtuno"]}
          for item in courses_result
       ]
 

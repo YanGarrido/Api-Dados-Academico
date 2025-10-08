@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Security, HTTPException, status
+from fastapi import FastAPI
 from database import engine, Base
 from routes import professors_routes, students_routes, course_routes, schedule_routes, curriculum_routes, subjects_routes
 
