@@ -143,3 +143,77 @@ async def semester_class_active(periodo_letivo_id: int, periodo: int, codturno: 
 
        raise e
       
+async def get_course_with_professors(codcurso: str, db: Session):
+    """
+    Busca os detalhes de um curso e aninha uma lista com suas disciplinas.
+    O padrão deste código imita o da função get_professors_with_subjects.
+    """
+    try:
+        query_course = text("""
+            SELECT TOP 1
+                SCURSO.CODCURSO AS codcurso, 
+                SCURSO.NOME AS nome, 
+                SCURSO.COMPLEMENTO AS complemento, 
+                SHABILITACAOFILIAL.CODTURNO AS codturno
+            FROM 
+                SCURSO 
+            JOIN 
+                SHABILITACAOFILIAL ON SCURSO.CODCURSO = SHABILITACAOFILIAL.CODCURSO 
+            WHERE 
+                SCURSO.CODCURSO = :codcurso
+        """)
+
+        course_data = db.execute(query_course, {"codcurso": codcurso}).mappings().first()
+
+        if not course_data:
+            return None
+
+        # --- Consulta 2: Buscar os professores do curso ---
+        query_professors = text("""
+          SELECT DISTINCT
+            GUS.CODUSUARIO AS code,
+            PESSOA.NOME AS nome, 
+            PESSOA.EMAILPESSOAL AS emailpessoal,
+            PESSOA.EMAIL AS email,
+            PESSOA.CPF AS cpf
+            
+          FROM
+            CEMGJB_128187_RM_DV.dbo.SPROFESSORTURMA AS PT
+            JOIN CEMGJB_128187_RM_DV.dbo.SPROFESSOR AS PROF
+              ON PT.CODCOLIGADA = PROF.CODCOLIGADA
+              AND PT.CODPROF = PROF.CODPROF
+            JOIN CEMGJB_128187_RM_DV.dbo.PPESSOA AS PESSOA
+            ON PROF.CODPESSOA  = PESSOA.CODIGO
+            JOIN CEMGJB_128187_RM_DV.dbo.GUSUARIO AS GUS
+              ON PESSOA.CODUSUARIO = GUS.CODUSUARIO 
+            JOIN CEMGJB_128187_RM_DV.dbo.STURMADISC AS TD
+              ON PT.IDTURMADISC = TD.IDTURMADISC
+            JOIN CEMGJB_128187_RM_DV.dbo.SDISCIPLINA AS DISC
+              ON TD.CODDISC = DISC.CODDISC
+            LEFT JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL AS HF
+              ON TD.IDHABILITACAOFILIAL = HF.IDHABILITACAOFILIAL
+            LEFT JOIN CEMGJB_128187_RM_DV.dbo.SCURSO AS CUR
+              ON HF.CODCURSO = CUR.CODCURSO
+          WHERE
+            TD.CODTIPOCURSO = 1
+            AND TD.CODFILIAL = 2
+            AND CUR.CODCURSO = :codcurso;
+      """)
+        professors_result = db.execute(query_professors, {"codcurso": codcurso}).mappings().all()
+
+        professors_list = [
+            {"code": item["code"], "nome": item["nome"], "emailpessoal": item["emailpessoal"], "email": item["email"], "cpf": item["cpf"]}
+            for item in professors_result
+        ]
+        
+       
+        response_data = dict(course_data)
+
+        response_data['professors'] = professors_list
+
+        return response_data
+
+    except Exception as e:
+        print(f"Erro ao buscar curso com disciplinas: {e}")
+       
+        raise e

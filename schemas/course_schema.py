@@ -14,6 +14,13 @@ class BaseSubject(BaseModel):
     coddisc: str
     nome: str
 
+class ProfessorInfo(BaseModel):
+    code: str | None = None
+    nome: str | None = None
+    cpf: str | None = None
+    emailpessoal: str | None = None
+    email: str | None = None
+
 class CourseWithSubjects(CourseInfo):
    subjects: List[BaseSubject] = []
 

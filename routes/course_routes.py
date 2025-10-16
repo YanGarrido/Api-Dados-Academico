@@ -143,3 +143,27 @@ async def semester_class_active(periodo_letivo_id: int, periodo: int, codturno: 
 
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar informações das turmas.")
+
+@router.get("/professors/{codcurso}")
+async def get_course_with_professors(codcurso: str, auth = Depends(authorization_api), db: Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+    try:
+        course_details = await asyncio.wait_for(
+            course_services.get_course_with_professors(codcurso=codcurso, db=db),
+            timeout=60.0
+        )
+
+        if not course_details:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=("Não foi possível localizar professores para o curso"))
+        return course_details
+
+    except asyncio.TimeoutError:
+
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, 
+                            detail="Tempo limite excedido ao buscar informações dos professores.")
+
+    except Exception as e:
+
+        print(f"Erro ao buscar informações dos professores: {e}")
+
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                            detail="Erro interno ao buscar informações dos professores.")
