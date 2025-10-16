@@ -11,8 +11,8 @@ async def get_curriculum(db:Session):
     sql_query = text("""
     SELECT 
     s.CODPERIODO AS periodo, 
-    s.CODCURSO AS curso_id, 
-    s.CODDISC AS disciplina_id,
+    s.CODCURSO AS codcurso, 
+    s.CODDISC AS coddisc,
     s.CODGRADE AS codgrade,
     s.DESCRICAO AS descricao  
     FROM CEMGJB_128187_RM_DV.dbo.SDISCGRADE s 
@@ -32,8 +32,8 @@ async def get_curriculum_current_course(codcurso: str,db:Session):
     sql_query = text("""
     SELECT 
     s.CODPERIODO AS periodo, 
-    s.CODCURSO AS curso_id, 
-    s.CODDISC AS disciplina_id,  
+    s.CODCURSO AS codcurso, 
+    s.CODDISC AS coddisc,  
     s.CODGRADE AS codgrade,
     s.DESCRICAO AS descricao
     FROM CEMGJB_128187_RM_DV.dbo.SDISCGRADE s 
@@ -53,8 +53,8 @@ async def get_old_curriculum(codcurso: str, db:Session):
     sql_query = text("""
     SELECT 
     s.CODPERIODO AS periodo, 
-    s.CODCURSO AS curso_id, 
-    s.CODDISC AS disciplina_id,  
+    s.CODCURSO AS codcurso, 
+    s.CODDISC AS coddisc,  
     s.CODGRADE AS codgrade,
     s.DESCRICAO AS descricao 
     FROM CEMGJB_128187_RM_DV.dbo.SDISCGRADE s 

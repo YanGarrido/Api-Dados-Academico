@@ -99,7 +99,7 @@ async def get_professor_with_subjects(professor_code: str,auth = Depends(authori
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail="Erro interno ao buscar professor.")
 
-@router.get("/active/{codcurso}/{periodo_id}", response_model=List[ProfessorInfo], summary="Lista professores que lecionavam em semestres anteriores e que continuam ativos", responses={
+@router.get("/active/{codcurso}/{periodo_letivo_id}", response_model=List[ProfessorInfo], summary="Lista professores que lecionavam em semestres anteriores e que continuam ativos", responses={
     200:{"description": "Lista de professores retornada com sucesso."},
     404:{"description": "Nenhum professor encontrado."},
     500:{"description": "Erro interno ao buscar professores."},

@@ -7,7 +7,7 @@ async def get_all_subjects(db: Session):
   try:
     sql_query = text("""
     SELECT 
-      s.CODDISC AS disciplina_id, 
+      s.CODDISC AS coddisc, 
       s.NOME AS nome, 
       s.CH AS ch, 
       s.CHESTAGIO AS chestagio, 
@@ -29,7 +29,7 @@ async def get_complete_subjects(coddisc: str, db: Session):
     try:
         sql_query_disciplina = text("""
           SELECT 
-            s.CODDISC AS disciplina_id, 
+            s.CODDISC AS coddisc, 
             s.NOME AS nome, 
             s.CH AS ch, 
             s.CHESTAGIO AS chestagio, 
@@ -85,7 +85,7 @@ async def get_subjects_current_semester(codcursos: List[str], periodo_letivo_id:
         
         sql_query = text(f"""
             SELECT DISTINCT
-                s.CODDISC AS disciplina_id, 
+                s.CODDISC AS coddisc, 
                 s.NOME AS nome, 
                 s.CH AS ch, 
                 s.CHESTAGIO AS chestagio, 

@@ -80,19 +80,19 @@ async def get_course_with_subjects(codcurso: str, auth = Depends(authorization_a
                             detail="Erro interno ao buscar detalhes do curso.")
 
 
-@router.get("/{codcurso}/{codturno}/{periodoletivo_id}/{periodo}/temTurma", response_model=HasTurmaOut, description="Verifica se há turmas ativas para um curso em um determinado período letivo e turno.", responses={
+@router.get("/{codcurso}/{codturno}/{periodo_letivo_id}/{periodo}/temTurma", response_model=HasTurmaOut, description="Verifica se há turmas ativas para um curso em um determinado período letivo e turno.", responses={
     200: {"description": "Informações sobre a existência de turmas retornadas com sucesso."},
     404: {"description": "Erro ao realizar requisição."},
     500: {"description": "Erro interno ao verificar turmas."},
     504: {"description": "Tempo limite excedido ao verificar turmas."}
 })
-async def has_class_period(codcurso: str,codturno: int, periodoletivo_id: int, periodo: int, auth = Depends(authorization_api), db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
+async def has_class_period(codcurso: str,codturno: int, periodo_letivo_id: int, periodo: int, auth = Depends(authorization_api), db:Session = Depends(get_db), api_key: str = Depends(get_api_key)):
     """
     Verifica se há turmas ativas para um curso em um determinado período letivo e turno."""
 
     try:
         class_details = await asyncio.wait_for(
-            course_services.has_class_period(codcurso=codcurso,codturno=codturno,periodoletivo_id=periodoletivo_id, periodo=periodo,db=db),
+            course_services.has_class_period(codcurso=codcurso,codturno=codturno,periodo_letivo_id=periodo_letivo_id, periodo=periodo,db=db),
             timeout=60.0
         )
 
