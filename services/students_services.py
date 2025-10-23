@@ -179,3 +179,39 @@ async def get_active_student_with_course(ra: str, db: Session):
 
       raise e
 
+async def get_students_for_internship(db: Session):
+    """
+    Executa a query SQL para buscar alunos ativos (com disciplinas).
+    """
+    try:
+      sql_query = text("""
+        SELECT DISTINCT
+          ALUNO.RA AS ra,
+          PESSOA.NOME AS nome,
+          SALUNOCOMPL.EMAIL AS email,
+          PESSOA.TELEFONE1  AS telefone,
+          PESSOA.CPF AS cpf,
+          c.NOME as curso
+        FROM CEMGJB_128187_RM_DV.dbo.PPESSOA  AS PESSOA
+        INNER JOIN CEMGJB_128187_RM_DV.dbo.SALUNO AS ALUNO 
+        	ON PESSOA.CODIGO = ALUNO.CODPESSOA
+        INNER JOIN CEMGJB_128187_RM_DV.dbo.SMATRICPL AS mt 
+        	ON ALUNO.RA = mt.RA
+        INNER JOIN CEMGJB_128187_RM_DV.dbo.SSTATUS AS STATUS 
+        	ON mt.CODSTATUS = STATUS.CODSTATUS
+        JOIN CEMGJB_128187_RM_DV.dbo.SALUNOCOMPL
+        	ON SALUNOCOMPL.RA = ALUNO.RA
+        JOIN CEMGJB_128187_RM_DV.dbo.SHABILITACAOFILIAL AS hf
+        	ON hf.IDHABILITACAOFILIAL = mt.IDHABILITACAOFILIAL 
+        JOIN CEMGJB_128187_RM_DV.dbo.SCURSO c
+        	ON c.CODCURSO = hf.CODCURSO 
+        WHERE
+          STATUS.CODSTATUS IN (1, 9,16, 23) 
+          AND mt.PERIODO >= 7;
+      """)
+
+      results = db.execute(sql_query).mappings().all()
+      return results
+    except Exception as e:
+        print(f"Erro ao buscar alunos para estágio: {e}")
+        raise e

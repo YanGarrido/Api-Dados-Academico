@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from security import authorization_api, get_api_key 
-from schemas.students_schema import StudentInfo, StudentWithCourses
+from schemas.students_schema import StudentInfo, StudentWithCourses, StudentsForInternship
 from database import get_db
 from services import students_services
 
@@ -151,3 +151,28 @@ async def read_active_student_with_course(ra: str, auth = Depends(authorization_
         print(f"Erro ao buscar aluno ativo pelo RA: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
                             detail="Erro interno ao buscar aluno ativo pelo RA.")  
+
+@router.get("/internship", response_model=List[StudentsForInternship], summary="Lista todos os alunos para estágio", responses={
+    200:{"description": "Lista de alunos para estágio retornada com sucesso."},
+    404:{"description": "Nenhum aluno para estágio foi encontrado."},
+    500:{"description": "Erro interno ao buscar alunos para estágio."},
+    504:{"description": "Tempo limite excedido ao buscar alunos para estágio."}
+}
+)    
+async def get_students_for_internship(auth = Depends(authorization_api),db: Session = Depends(get_db), get_api_key: str = Depends(get_api_key)):
+    try:
+        intership_students = await asyncio.wait_for(
+        students_services.get_students_for_internship(db), 
+        timeout=60.0
+        )
+        if not intership_students:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                                detail="Nenhum aluno para estágio encontrado.")
+        return intership_students
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, 
+                            detail="Tempo limite excedido ao buscar alunos para estágio.")
+    except Exception as e:
+        print(f"Erro ao buscar alunos para estágio: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                            detail="Erro interno ao buscar alunos para estágio.")

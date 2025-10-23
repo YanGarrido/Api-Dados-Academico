@@ -18,3 +18,12 @@ class CourseInfo(BaseModel):
 
 class StudentWithCourses(StudentInfo):
    courses: List[CourseInfo] = []
+
+class StudentsForInternship(BaseModel):
+    ra: str | None = None
+    nome: str | None = None
+    email: str | None = None
+    telefone: str | None = None
+    cpf: str | None = None
+    curso: str | None = None
+    semestre: str | None = None
