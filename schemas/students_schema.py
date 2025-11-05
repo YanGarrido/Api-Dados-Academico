@@ -26,4 +26,3 @@ class StudentsForInternship(BaseModel):
     telefone: str | None = None
     cpf: str | None = None
     curso: str | None = None
-    semestre: str | None = None
